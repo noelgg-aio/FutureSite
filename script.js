@@ -289,7 +289,7 @@ function downloadCode(code) {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     
-    // Generate filename from first line of content or default
+    // Generate filename from the title tag or default
     let filename = 'website.html';
     const titleMatch = code.match(/<title>(.*?)<\/title>/);
     if (titleMatch) {
@@ -327,6 +327,14 @@ function handleGoogleError(error) {
     loginContainer.appendChild(errorMessage);
 }
 
+// Check for existing user session
+if (localStorage.getItem('isAuthenticated') === 'true') {
+    isAuthenticated = true;
+    userProfile = JSON.parse(localStorage.getItem('userProfile'));
+    appContainer.classList.remove('hidden');
+    addChatMessage('ai', `Welcome back ${userProfile.name}!`);
+}
+
 // Handle Google Sign-In
 function handleCredentialResponse(response) {
     if (response.error) {
@@ -335,22 +343,21 @@ function handleCredentialResponse(response) {
     }
 
     const credential = response.credential;
-    
+
     try {
-        // Decode the JWT token
         const payload = JSON.parse(atob(credential.split('.')[1]));
-        
         userProfile = {
             name: payload.name,
             email: payload.email,
             picture: payload.picture
         };
-        
+
         isAuthenticated = true;
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('userProfile', JSON.stringify(userProfile));
         loginOverlay.classList.add('hidden');
         appContainer.classList.remove('hidden');
-        
-        // Add welcome message
+
         addChatMessage('ai', `Welcome ${userProfile.name}! I'm ready to help you build websites.`);
     } catch (error) {
         console.error('Error processing credential:', error);
@@ -363,8 +370,10 @@ function handleSignOut() {
     google.accounts.id.disableAutoSelect();
     isAuthenticated = false;
     userProfile = null;
-    
-    // Clear chat and reset UI
+
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('userProfile');
+
     clearChat();
     appContainer.classList.add('hidden');
     loginOverlay.classList.remove('hidden');
@@ -538,4 +547,11 @@ document.getElementById('clear-chat').addEventListener('click', clearChat);
 
 // Initialize the app
 initializeWelcomePreview();
-initializeResizer(); 
+initializeResizer();
+
+// Add download button next to fullscreen button
+const downloadBtn = document.createElement('button');
+downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download';
+downloadBtn.className = 'download-btn';
+downloadBtn.onclick = () => downloadCode(lastGeneratedCode);
+document.querySelector('.preview-controls').appendChild(downloadBtn); 
