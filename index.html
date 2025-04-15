@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FutureSite</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <div id="login-overlay" class="login-overlay">
+        <div class="login-container">
+            <div class="login-header">
+                <div class="ai-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h1>FutureSite</h1>
+                <p>Sign in to start building websites</p>
+            </div>
+            <div id="g_id_onload"
+                 data-client_id="423542242333-6tv9nokijgd4oe79eap8gp9oqhop0p9i.apps.googleusercontent.com"
+                 data-context="signin"
+                 data-ux_mode="popup"
+                 data-callback="handleCredentialResponse"
+                 data-auto_prompt="false"
+                 data-error_callback="handleGoogleError"
+                 data-origin="http://localhost">
+            </div>
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-shape="rectangular"
+                 data-theme="filled_black"
+                 data-text="signin_with"
+                 data-size="large"
+                 data-logo_alignment="left">
+            </div>
+        </div>
+    </div>
+
+    <div id="app-container" class="app-container hidden">
+        <div class="chat-section">
+            <div class="chat-header">
+                <div class="header-content">
+                    <div class="ai-identity">
+                        <div class="ai-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="ai-info">
+                            <h1>FutureSite</h1>
+                            <p class="subtitle">Website Generator</p>
+                        </div>
+                    </div>
+                    <div class="header-controls">
+                        <button id="clear-chat" class="clear-chat-btn">
+                            <i class="fas fa-trash"></i>
+                            Clear Chat
+                        </button>
+                        <button id="sign-out" class="sign-out-btn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Sign Out
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-content">
+                <!-- Messages will be added here dynamically -->
+            </div>
+
+            <div class="chat-input">
+                <div class="input-wrapper">
+                    <textarea id="prompt-input" placeholder="Describe your website (e.g., 'Create a modern landing page with a hero section, features grid, and contact form')"></textarea>
+                    <div class="button-group">
+                        <button id="think-toggle" class="think-toggle">
+                            <div class="button-content">
+                                <i class="fas fa-lightbulb"></i>
+                                <span>Think Mode</span>
+                            </div>
+                            <div class="think-status">
+                                <span class="status-dot"></span>
+                                <span class="status-text">OFF</span>
+                            </div>
+                        </button>
+                        <button id="generate-btn" class="generate-btn">
+                            <div class="button-content">
+                                <i class="fas fa-wand-magic-sparkles"></i>
+                                <span>Generate Website</span>
+                            </div>
+                            <div class="loading-animation">
+                                <span></span><span></span><span></span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="resizer" id="panel-resizer"></div>
+
+        <div class="preview-section">
+            <div class="preview-header">
+                <div class="preview-title">
+                    <i class="fas fa-globe"></i>
+                    <h2>Live Preview</h2>
+                </div>
+                <div class="preview-controls">
+                    <button id="fullscreen-preview" class="preview-btn" title="Open in New Tab">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                    <button id="refresh-preview" class="preview-btn" title="Refresh Preview">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="preview-container">
+                <iframe id="preview-frame" src="about:blank"></iframe>
+                <div class="preview-overlay">
+                    <div class="generating-indicator">
+                        <div class="pulse-ring"></div>
+                        <span>Generating your website...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
