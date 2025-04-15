@@ -7,40 +7,9 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-    <div id="login-overlay" class="login-overlay">
-        <div class="login-container">
-            <div class="login-header">
-                <div class="ai-avatar">
-                    <i class="fas fa-robot"></i>
-                </div>
-                <h1>FutureSite AI</h1>
-                <p>Sign in to start building websites</p>
-            </div>
-            <div id="g_id_onload"
-                 data-client_id="423542242333-6tv9nokijgd4oe79eap8gp9oqhop0p9i.apps.googleusercontent.com"
-                 data-context="signin"
-                 data-ux_mode="popup"
-                 data-callback="handleCredentialResponse"
-                 data-auto_prompt="false"
-                 data-error_callback="handleGoogleError"
-                 data-origin="http://localhost"
-                 data-login_uri="http://localhost">
-            </div>
-            <div class="g_id_signin"
-                 data-type="standard"
-                 data-shape="rectangular"
-                 data-theme="filled_black"
-                 data-text="signup_with"
-                 data-size="large"
-                 data-logo_alignment="left">
-            </div>
-        </div>
-    </div>
-
-    <div id="app-container" class="app-container hidden">
+    <div class="app-container">
         <div class="chat-section">
             <div class="chat-header">
                 <div class="header-content">
@@ -57,10 +26,6 @@
                         <button id="clear-chat" class="clear-chat-btn">
                             <i class="fas fa-trash"></i>
                             Clear Chat
-                        </button>
-                        <button id="sign-out" class="sign-out-btn">
-                            <i class="fas fa-sign-out-alt"></i>
-                            Sign Out
                         </button>
                     </div>
                 </div>

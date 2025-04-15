@@ -518,4 +518,4 @@ downloadBtn.onclick = () => downloadCode(lastGeneratedCode);
 
 // Append the button to the preview controls
 const previewControls = document.querySelector('.preview-controls');
-previewControls.insertBefore(downloadBtn, fullscreenBtn); // Move it left of the fullscreen button 
+previewControls.insertBefore(downloadBtn, fullscreenBtn); 
