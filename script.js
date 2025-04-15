@@ -1,4 +1,4 @@
-const API_KEY = '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';
+const API_KEY = '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';
 const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 // Authentication state
@@ -178,12 +178,12 @@ thinkToggle.addEventListener('click', () => {
     isThinking = !isThinking;
     thinkToggle.classList.toggle('active');
     statusText.textContent = isThinking ? 'ON' : 'OFF';
-    
+
     // Add status message to chat
     if (isThinking) {
-        addChatMessage('ai', 'Thinking mode activated. I will think more deeply about the implementation.', 'status');
+        addChatMessage('ai', 'Thinking Activated... I will consider your request more deeply.', 'status');
     } else {
-        addChatMessage('ai', 'Thinking mode deactivated. I will generate code more quickly.', 'status');
+        addChatMessage('ai', 'Thinking Deactivated... I will generate code more quickly.', 'status');
     }
 });
 
@@ -420,37 +420,14 @@ async function generateWebsite() {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${API_KEY}`,
                 'HTTP-Referer': window.location.href,
-                'X-Title': 'WebGenius AI'
+                'X-Title': 'FutureSite'
             },
             body: JSON.stringify({
                 model: "google/gemini-2.5-pro-exp-03-25:free",
                 temperature: isThinking ? 0.9 : 0.7,
                 messages: [{
                     role: "user",
-                    content: `Create a modern and responsive website with this description: ${prompt}
-                    ${isThinking ? 'Think deeply about the best possible implementation, considering modern design patterns, accessibility, and performance.' : ''}
-                    
-                    Requirements:
-                    1. Return ONLY the HTML and CSS code, no explanations
-                    2. Put ALL CSS code inside <style> tags
-                    3. Put ALL HTML code inside <body> tags
-                    4. Make it visually appealing and modern
-                    5. Use flexbox or grid for layout
-                    6. Add hover effects and smooth transitions
-                    7. Make it fully responsive
-                    8. Use modern color schemes and typography
-                    9. Include interactive elements
-                    10. Add a meaningful title tag
-                    11. DO NOT include any JavaScript code
-                    12. Ensure all user input is properly escaped
-                    
-                    Format the response exactly like this:
-                    <style>
-                    /* Your CSS here */
-                    </style>
-                    <body>
-                    <!-- Your HTML here -->
-                    </body>`
+                    content: `Create a modern and responsive website with this description: ${prompt}`
                 }]
             })
         });
