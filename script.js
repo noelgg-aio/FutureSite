@@ -554,4 +554,7 @@ const downloadBtn = document.createElement('button');
 downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download';
 downloadBtn.className = 'download-btn';
 downloadBtn.onclick = () => downloadCode(lastGeneratedCode);
-document.querySelector('.preview-controls').appendChild(downloadBtn); 
+
+// Append the button to the preview controls
+const previewControls = document.querySelector('.preview-controls');
+previewControls.insertBefore(downloadBtn, fullscreenBtn); // Move it left of the fullscreen button 
