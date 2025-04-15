@@ -1,4 +1,4 @@
-const API_KEY = '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';
+const API_KEY = process.env.API_KEY;
 const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 // Authentication state
