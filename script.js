@@ -304,28 +304,56 @@ function downloadCode(code) {
     window.URL.revokeObjectURL(url);
 }
 
-// Handle Google Sign-In Error
+// Authentication handling
+function handleCredentialResponse(response) {
+    if (response.credential) {
+        // Verify the token with Google
+        fetch('https://oauth2.googleapis.com/tokeninfo?id_token=' + response.credential)
+            .then(res => res.json())
+            .then(data => {
+                if (data.aud === '423542242333-6tv9nokijgd4oe79eap8gp9oqhop0p9i.apps.googleusercontent.com') {
+                    // Token is valid
+                    userProfile = {
+                        name: data.name,
+                        email: data.email,
+                        picture: data.picture
+                    };
+                    isAuthenticated = true;
+                    showApp();
+                } else {
+                    handleGoogleError('Invalid token audience');
+                }
+            })
+            .catch(error => {
+                handleGoogleError('Token verification failed');
+                console.error('Token verification error:', error);
+            });
+    }
+}
+
 function handleGoogleError(error) {
     console.error('Google Sign-In Error:', error);
-    const errorMessage = document.createElement('div');
-    errorMessage.className = 'error-message';
-    errorMessage.innerHTML = `
-        <i class="fas fa-exclamation-circle"></i>
-        <p>Authentication Error: ${error.error}</p>
-        <p>Please make sure you have a valid Google OAuth client ID configured.</p>
-        <p>If you're the developer, check the Google Cloud Console for your client ID.</p>
-    `;
-    
-    // Remove any existing error message
-    const existingError = document.querySelector('.error-message');
-    if (existingError) {
-        existingError.remove();
-    }
-    
-    // Add the new error message
-    const loginContainer = document.querySelector('.login-container');
-    loginContainer.appendChild(errorMessage);
+    // You might want to show a user-friendly error message here
+    alert('Authentication failed. Please try again.');
 }
+
+function showApp() {
+    loginOverlay.classList.add('hidden');
+    appContainer.classList.remove('hidden');
+    initializeWelcomePreview();
+}
+
+function signOut() {
+    isAuthenticated = false;
+    userProfile = null;
+    appContainer.classList.add('hidden');
+    loginOverlay.classList.remove('hidden');
+    // Clear any stored tokens or session data
+    localStorage.removeItem('google_token');
+}
+
+// Initialize sign-out button
+document.getElementById('sign-out').addEventListener('click', signOut);
 
 // Check for existing user session
 if (localStorage.getItem('isAuthenticated') === 'true') {
@@ -333,50 +361,6 @@ if (localStorage.getItem('isAuthenticated') === 'true') {
     userProfile = JSON.parse(localStorage.getItem('userProfile'));
     appContainer.classList.remove('hidden');
     addChatMessage('ai', `Welcome back ${userProfile.name}!`);
-}
-
-// Handle Google Sign-In
-function handleCredentialResponse(response) {
-    if (response.error) {
-        handleGoogleError(response);
-        return;
-    }
-
-    const credential = response.credential;
-
-    try {
-        const payload = JSON.parse(atob(credential.split('.')[1]));
-        userProfile = {
-            name: payload.name,
-            email: payload.email,
-            picture: payload.picture
-        };
-
-        isAuthenticated = true;
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('userProfile', JSON.stringify(userProfile));
-        loginOverlay.classList.add('hidden');
-        appContainer.classList.remove('hidden');
-
-        addChatMessage('ai', `Welcome ${userProfile.name}! I'm ready to help you build websites.`);
-    } catch (error) {
-        console.error('Error processing credential:', error);
-        handleGoogleError({ error: 'Failed to process authentication token' });
-    }
-}
-
-// Handle Sign Out
-function handleSignOut() {
-    google.accounts.id.disableAutoSelect();
-    isAuthenticated = false;
-    userProfile = null;
-
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('userProfile');
-
-    clearChat();
-    appContainer.classList.add('hidden');
-    loginOverlay.classList.remove('hidden');
 }
 
 // Sanitize input
@@ -508,7 +492,7 @@ async function generateWebsite() {
 }
 
 // Event listeners
-signOutBtn.addEventListener('click', handleSignOut);
+signOutBtn.addEventListener('click', signOut);
 generateBtn.addEventListener('click', generateWebsite);
 promptInput.addEventListener('keydown', (e) => {
     if (e.ctrlKey && e.key === 'Enter') {
