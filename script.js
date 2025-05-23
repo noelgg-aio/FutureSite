@@ -25,7 +25,7 @@ let isThinking = false;
 let isGenerating = false;
 let currentPreviewContent = '';
 let chatHistory = [];
-let lastGeneratedCode = null;
+let lastGeneratedTextContent = null;
 let isResizing = false;
 
 // Initialize welcome preview
@@ -84,20 +84,20 @@ function initializeWelcomePreview() {
             </style>
         </head>
         <body>
-            <h1>Welcome to WebGenius AI</h1>
-            <p>Enter your website description, and I'll generate a modern, responsive website for you instantly.</p>
+            <h1>Welcome to PDFGenius AI</h1>
+            <p>Describe the PDF document you need, and I'll generate the content for you. You can then download it as a PDF.</p>
             <div class="features">
                 <div class="feature">
-                    <h3>Smart Generation</h3>
-                    <p>Advanced AI-powered website generation with modern design patterns.</p>
+                    <h3>Smart Content Generation</h3>
+                    <p>AI-powered content creation for various PDF document types.</p>
                 </div>
                 <div class="feature">
                     <h3>Think Mode</h3>
-                    <p>Enable deep thinking for more sophisticated implementations.</p>
+                    <p>Enable deep thinking for more detailed and structured content.</p>
                 </div>
                 <div class="feature">
-                    <h3>Live Preview</h3>
-                    <p>See your website come to life in real-time as it's generated.</p>
+                    <h3>Live Preview & Download</h3>
+                    <p>See your PDF content generated in real-time and download it as a PDF.</p>
                 </div>
             </div>
         </body>
@@ -106,32 +106,13 @@ function initializeWelcomePreview() {
     updatePreview(welcomeHTML);
 }
 
-// Update preview with generated code
-function updatePreview(code) {
+// Update preview with text content
+function updatePreview(textContent) {
     try {
         const previewDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
         previewDoc.open();
         
-        // Extract style content
-        let styleContent = '';
-        if (code.includes('<style>')) {
-            const styleMatch = code.match(/<style>([\s\S]*?)<\/style>/);
-            if (styleMatch) {
-                styleContent = styleMatch[1];
-                code = code.replace(/<style>[\s\S]*?<\/style>/, '');
-            }
-        }
-        
-        // Extract body content
-        let bodyContent = code;
-        if (code.includes('<body>')) {
-            const bodyMatch = code.match(/<body>([\s\S]*?)<\/body>/);
-            if (bodyMatch) {
-                bodyContent = bodyMatch[1];
-            }
-        }
-        
-        // Create the complete HTML structure
+        // Create the minimal HTML structure for text/markdown preview
         currentPreviewContent = `
             <!DOCTYPE html>
             <html>
@@ -140,18 +121,17 @@ function updatePreview(code) {
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
                 <style>
-                    body {
-                        margin: 0;
-                        padding: 0;
-                        font-family: 'Plus Jakarta Sans', sans-serif;
-                        line-height: 1.5;
+                    body { 
+                        font-family: 'Plus Jakarta Sans', sans-serif; 
+                        margin: 20px; 
+                        white-space: pre-wrap; /* CSS property to preserve whitespace and wrap text */
+                        word-wrap: break-word; /* Breaks long words to prevent overflow */
                     }
-                    * { box-sizing: border-box; }
-                    ${styleContent}
                 </style>
+                <title>Content Preview</title>
             </head>
             <body>
-                ${bodyContent}
+                <pre>${textContent}</pre>
             </body>
             </html>
         `;
@@ -183,7 +163,7 @@ thinkToggle.addEventListener('click', () => {
     if (isThinking) {
         addChatMessage('ai', 'Thinking Activated... I will consider your request more deeply.', 'status');
     } else {
-        addChatMessage('ai', 'Thinking Deactivated... I will generate code more quickly.', 'status');
+        addChatMessage('ai', 'Thinking Deactivated... I will generate content more quickly.', 'status');
     }
 });
 
@@ -253,12 +233,12 @@ function addChatMessage(role, content, type = 'text') {
 
     if (type === 'status') {
         messageContent.innerHTML = `<div class="status-message"><i class="fas fa-spinner fa-spin"></i> ${content}</div>`;
-    } else if (type === 'code') {
+    } else if (type === 'code') { // 'code' type is used for the generated text content, with a PDF download button
         messageContent.innerHTML = `
             <div class="code-message">
                 <pre>${content}</pre>
-                <button class="download-btn" onclick="downloadCode('${content}')">
-                    <i class="fas fa-download"></i> Download
+                <button class="download-btn" onclick="downloadPdf(lastGeneratedTextContent)">
+                    <i class="fas fa-download"></i> Download PDF
                 </button>
             </div>`;
     } else {
@@ -280,28 +260,46 @@ function addChatMessage(role, content, type = 'text') {
 function clearChat() {
     chatContent.innerHTML = '';
     chatHistory = [];
-    lastGeneratedCode = null;
+    lastGeneratedTextContent = null;
 }
 
-// Download code
-function downloadCode(code) {
-    const blob = new Blob([code], { type: 'text/html' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    
-    // Generate filename from the title tag or default
-    let filename = 'website.html';
-    const titleMatch = code.match(/<title>(.*?)<\/title>/);
-    if (titleMatch) {
-        filename = titleMatch[1].toLowerCase().replace(/[^a-z0-9]/g, '-') + '.html';
+// Download PDF
+function downloadPdf(textContent) {
+    if (!textContent) {
+        alert("No content to download.");
+        return;
     }
-    
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Basic text rendering. For more complex markdown, a parser would be needed.
+    // jsPDF's text method can handle line breaks.
+    // We'll split the text into lines and add them.
+    // Define margins and line height
+    const margin = 10;
+    const lineHeight = 7; // Adjust as needed for your font size
+    let y = margin;
+
+    // Split text by lines
+    const lines = doc.splitTextToSize(textContent, doc.internal.pageSize.getWidth() - margin * 2);
+
+    lines.forEach(line => {
+        if (y + lineHeight > doc.internal.pageSize.getHeight() - margin) {
+            doc.addPage();
+            y = margin; // Reset y for new page
+        }
+        doc.text(line, margin, y);
+        y += lineHeight;
+    });
+
+    let filename = 'generated_pdf.pdf';
+    const firstLineSanitized = textContent.split('\n')[0].substring(0, 30).replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    if (firstLineSanitized) {
+        filename = firstLineSanitized + '.pdf';
+    }
+
+    doc.save(filename);
 }
 
 // Authentication handling
@@ -341,6 +339,7 @@ function showApp() {
     loginOverlay.classList.add('hidden');
     appContainer.classList.remove('hidden');
     initializeWelcomePreview();
+    promptInput.focus(); // Set focus to prompt input
 }
 
 function signOut() {
@@ -376,8 +375,8 @@ function sanitizeInput(input) {
         .replace(/}/g, '&#125;');
 }
 
-// Generate website with security checks
-async function generateWebsite() {
+// Generate PDF content
+async function generatePdfContent() {
     if (!isAuthenticated) {
         console.error('User not authenticated');
         return;
@@ -395,7 +394,7 @@ async function generateWebsite() {
     
     // Add user message with sanitized input
     addChatMessage('user', prompt);
-    addChatMessage('ai', isThinking ? 'Thinking deeply about your request...' : 'Generating your website...', 'status');
+    addChatMessage('ai', isThinking ? 'Thinking deeply about your request...' : 'Generating your PDF content...', 'status');
 
     try {
         const response = await fetch(API_URL, {
@@ -404,14 +403,14 @@ async function generateWebsite() {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${API_KEY}`,
                 'HTTP-Referer': window.location.href,
-                'X-Title': 'FutureSite'
+                'X-Title': 'PDFGenius' // Updated X-Title
             },
             body: JSON.stringify({
                 model: "google/gemini-2.5-pro-exp-03-25:free",
                 temperature: isThinking ? 0.9 : 0.7,
                 messages: [{
                     role: "user",
-                    content: `Create a modern and responsive website with this description: ${prompt}`
+                    content: `You are an AI assistant that helps users generate content for PDF documents. The user wants a document based on the following description: '${prompt}'. Please generate the content for this PDF. You can use markdown for formatting if appropriate (e.g., headings, lists, bold, italics). Do not include any HTML, CSS, or JavaScript code in your response. Focus on providing well-structured text content suitable for a PDF document.`
                 }]
             })
         });
@@ -423,23 +422,20 @@ async function generateWebsite() {
         const data = await response.json();
         
         if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
-            const generatedCode = data.choices[0].message.content;
+            const generatedContent = data.choices[0].message.content;
             
-            // Clean and sanitize the response
-            const cleanCode = generatedCode
-                .replace(/```html|```css|```/g, '')
-                .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove any script tags
-                .trim();
+            // Clean the response - for now, just trim whitespace. Consider removing backticks if model uses them.
+            const cleanContent = generatedContent.trim();
             
-            // Store the generated code
-            lastGeneratedCode = cleanCode;
+            // Store the generated content
+            lastGeneratedTextContent = cleanContent;
             
-            // Add success message and code
-            addChatMessage('ai', 'Website generated successfully! You can see the preview on the right and download the code below.');
-            addChatMessage('ai', cleanCode, 'code');
+            // Add success message and content
+            addChatMessage('ai', 'PDF content generated successfully! You can see the preview on the right and download the PDF below.');
+            addChatMessage('ai', cleanContent, 'code'); // 'code' type is used for preformatted text display
             
             // Update preview
-            updatePreview(cleanCode);
+            updatePreview(cleanContent);
         } else {
             throw new Error('Invalid response format from API');
         }
@@ -493,15 +489,20 @@ async function generateWebsite() {
 
 // Event listeners
 signOutBtn.addEventListener('click', signOut);
-generateBtn.addEventListener('click', generateWebsite);
+generateBtn.addEventListener('click', generatePdfContent);
 promptInput.addEventListener('keydown', (e) => {
     if (e.ctrlKey && e.key === 'Enter') {
-        generateWebsite();
+        generatePdfContent();
     }
 });
 refreshBtn.addEventListener('click', () => {
-    const currentContent = previewFrame.contentDocument.body.innerHTML;
-    updatePreview(currentContent);
+    // Re-render with the last generated text content if available
+    if (lastGeneratedTextContent) {
+        updatePreview(lastGeneratedTextContent);
+    } else {
+        // If no content yet, can re-initialize welcome or show a specific message
+        initializeWelcomePreview(); 
+    }
 });
 fullscreenBtn.addEventListener('click', openPreviewInNewTab);
 document.getElementById('clear-chat').addEventListener('click', clearChat);
@@ -512,10 +513,16 @@ initializeResizer();
 
 // Add download button next to fullscreen button
 const downloadBtn = document.createElement('button');
-downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download';
-downloadBtn.className = 'download-btn';
-downloadBtn.onclick = () => downloadCode(lastGeneratedCode);
+downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download PDF';
+downloadBtn.className = 'download-btn'; // Keep class for styling, or create a new one if needed
+downloadBtn.onclick = () => {
+    if (lastGeneratedTextContent) {
+        downloadPdf(lastGeneratedTextContent);
+    } else {
+        alert("No content generated yet to download.");
+    }
+};
 
 // Append the button to the preview controls
 const previewControls = document.querySelector('.preview-controls');
-previewControls.insertBefore(downloadBtn, fullscreenBtn); 
+previewControls.insertBefore(downloadBtn, fullscreenBtn);

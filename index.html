@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FutureSite</title>
+    <title>PDFGenius AI - AI PDF Generator</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
     <div class="app-container">
@@ -15,11 +16,11 @@
                 <div class="header-content">
                     <div class="ai-identity">
                         <div class="ai-avatar">
-                            <i class="fas fa-robot"></i>
+                            <i class="fas fa-file-pdf"></i>
                         </div>
                         <div class="ai-info">
-                            <h1>FutureSite AI</h1>
-                            <p class="subtitle">Website Generator</p>
+                            <h1>PdfGenius AI</h1>
+                            <p class="subtitle">Your AI PDF Writing Assistant</p>
                         </div>
                     </div>
                     <div class="header-controls">
@@ -37,7 +38,7 @@
 
             <div class="chat-input">
                 <div class="input-wrapper">
-                    <textarea id="prompt-input" placeholder="Describe your website (e.g., 'Create a modern landing page with a hero section, features grid, and contact form')"></textarea>
+                    <textarea id="prompt-input" placeholder="Describe the PDF you want to create (e.g., 'A 3-page report on climate change with introduction, key findings, and conclusion')"></textarea>
                     <div class="button-group">
                         <button id="think-toggle" class="think-toggle">
                             <div class="button-content">
@@ -52,7 +53,7 @@
                         <button id="generate-btn" class="generate-btn">
                             <div class="button-content">
                                 <i class="fas fa-wand-magic-sparkles"></i>
-                                <span>Generate Website</span>
+                                <span>Generate PDF</span>
                             </div>
                             <div class="loading-animation">
                                 <span></span><span></span><span></span>
@@ -85,7 +86,7 @@
                 <div class="preview-overlay">
                     <div class="generating-indicator">
                         <div class="pulse-ring"></div>
-                        <span>Generating your website...</span>
+                        <span>Generating your PDF...</span>
                     </div>
                 </div>
             </div>
